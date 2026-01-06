@@ -6,22 +6,42 @@ export default function EditProduct() {
     const router = useRouter();
     const { id } = router.query;
     const [product, setProduct] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (id) {
             fetch(`/api/products/${id}`)
                 .then((res) => res.json())
-                .then((data) => setProduct(data));
+                .then((data) => {
+                    setProduct(data);
+                    setLoading(false);
+                });
         }
     }, [id]);
 
-    if (!product) return <div className="p-20 text-center">Loading product...</div>;
-
-    return (
-        <div className="min-h-screen bg-slate-50 p-6">
-            <div className="max-w-2xl mx-auto">
-                <AdminForm product={product} isEdit={true} />
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-primary)' }}>
+                <div className="text-center">
+                    <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <p style={{ color: 'var(--text-secondary)' }}>Loading product...</p>
+                </div>
             </div>
-        </div>
-    );
+        );
+    }
+
+    if (!product) {
+        return (
+            <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-primary)' }}>
+                <div className="text-center">
+                    <p className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Product not found</p>
+                    <button onClick={() => router.push("/")} className="btn-primary">
+                        Back to Dashboard
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    return <AdminForm product={product} isEdit={true} />;
 }
